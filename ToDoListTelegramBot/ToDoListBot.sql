@@ -14,7 +14,7 @@ CREATE TABLE users(
 CREATE TABLE to_do_lists(
 	list_id INTEGER AUTO_INCREMENT,
 	user_id INTEGER NOT NULL,
-	list_name VARCHAR(100),
+	list_name VARCHAR(100) NOT NULL,
 	PRIMARY KEY(list_id),
 	FOREIGN KEY(user_id) REFERENCES users(user_id)
 );
@@ -22,7 +22,7 @@ CREATE TABLE to_do_lists(
 CREATE TABLE lits_items(
 	item_id INTEGER AUTO_INCREMENT,
 	list_id INTEGER NOT NULL,
-	item_description list_name VARCHAR(140) NOT NULL,
+	item_description VARCHAR(140) NOT NULL,
 	item_status BOOLEAN NOT NULL,
 	PRIMARY KEY(item_id),
 	FOREIGN KEY(list_id) REFERENCES to_do_lists(list_id)
