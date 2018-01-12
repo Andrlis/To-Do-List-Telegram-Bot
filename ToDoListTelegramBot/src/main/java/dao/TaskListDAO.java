@@ -5,7 +5,7 @@ import java.util.List;
 
 public interface TaskListDAO {
     TaskList getTaskListByID(int id) throws DAOException;
-    List<TaskList> getAllTaskLists() throws DAOException;
+    List<TaskList> getTaskListsByUserID(int user_id) throws DAOException;
     void saveTaskList(TaskList user) throws DAOException;
     void updateTaskList(int id, TaskList taskList) throws DAOException;
     void removeTaskList(int id) throws DAOException;

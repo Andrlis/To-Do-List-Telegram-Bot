@@ -14,7 +14,7 @@ import java.util.List;
 public class MySqlTaskDAO extends AbstractMySqlDAO implements TaskDAO  {
 
     private final static String GET_ALL_QUERY =
-            "SELECT * FROM to_do_bot.lits_items";
+            "SELECT * FROM to_do_bot.lits_items WHERE list_id = ?";
     private final static String GET_BY_ID_QUERY =
             "SELECT * FROM to_do_bot.lits_items WHERE item_id = ?";
     private final static String SAVE_QUERY =
@@ -57,7 +57,7 @@ public class MySqlTaskDAO extends AbstractMySqlDAO implements TaskDAO  {
     }
 
     @Override
-    public List<Task> getAllTasks() throws DAOException {
+    public List<Task> getTasksByListID(int list_id) throws DAOException {
         Connection connection = null;
         PreparedStatement statement = null;
         ResultSet resultSet = null;
@@ -67,6 +67,7 @@ public class MySqlTaskDAO extends AbstractMySqlDAO implements TaskDAO  {
         try {
             connection = getConnection();
             statement = connection.prepareStatement(GET_ALL_QUERY);
+            statement.setInt(1, list_id);
             resultSet = statement.executeQuery();
 
             while(resultSet.next()) {

@@ -17,6 +17,8 @@ public class MySqlUserDAO extends AbstractMySqlDAO implements UserDAO {
             "SELECT * FROM to_do_bot.users";
     private final static String GET_BY_ID_QUERY =
             "SELECT * FROM to_do_bot.users WHERE user_id = ?";
+    private final static String GET_BY_TELEGRAM_ID_QUERY =
+            "SELECT * FROM to_do_bot.users WHERE telegram_id = ?";
     private final static String SAVE_QUERY =
             "INSERT INTO to_do_bot.users (user_id, telegram_id)"
                     + " VALUES (?, ?)";
@@ -35,6 +37,34 @@ public class MySqlUserDAO extends AbstractMySqlDAO implements UserDAO {
             connection = getConnection();
             statement = connection.prepareStatement(GET_BY_ID_QUERY);
             statement.setInt(1, id);
+            resultSet = statement.executeQuery();
+
+            if (resultSet.next()) {
+                user = new User();
+                user.setId(resultSet.getInt("user_id"));
+                user.setTelegramId(resultSet.getInt("telegram_id"));
+            }
+        } catch (SQLException e) {
+            throw new DAOException();
+        } finally {
+            closeDB(connection, statement, resultSet);
+        }
+
+        return user;
+    }
+
+    @Override
+    public User getUserByTelegramID(int telegram_id) throws DAOException {
+        Connection connection = null;
+        PreparedStatement statement = null;
+        ResultSet resultSet = null;
+
+        User user = null;
+
+        try {
+            connection = getConnection();
+            statement = connection.prepareStatement(GET_BY_TELEGRAM_ID_QUERY);
+            statement.setInt(1, telegram_id);
             resultSet = statement.executeQuery();
 
             if (resultSet.next()) {

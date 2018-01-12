@@ -14,7 +14,7 @@ import java.util.List;
 public class MySqlTaskListDAO extends AbstractMySqlDAO implements TaskListDAO {
 
     private final static String GET_ALL_QUERY =
-            "SELECT * FROM to_do_bot.to_do_lists";
+            "SELECT * FROM to_do_bot.to_do_lists WHERE user_id = ?";
     private final static String GET_BY_ID_QUERY =
             "SELECT * FROM to_do_bot.to_do_lists WHERE list_id = ?";
     private final static String SAVE_QUERY =
@@ -56,7 +56,7 @@ public class MySqlTaskListDAO extends AbstractMySqlDAO implements TaskListDAO {
     }
 
     @Override
-    public List<TaskList> getAllTaskLists() throws DAOException {
+    public List<TaskList> getTaskListsByUserID(int user_id) throws DAOException {
         Connection connection = null;
         PreparedStatement statement = null;
         ResultSet resultSet = null;
@@ -66,6 +66,7 @@ public class MySqlTaskListDAO extends AbstractMySqlDAO implements TaskListDAO {
         try {
             connection = getConnection();
             statement = connection.prepareStatement(GET_ALL_QUERY);
+            statement.setInt(1, user_id);
             resultSet = statement.executeQuery();
 
             while(resultSet.next()) {
