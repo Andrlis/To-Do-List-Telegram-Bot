@@ -1,11 +1,26 @@
 package bot;
 
+import bean.Task;
+import dao.DAOException;
+import dao.DAOFactory;
 import org.telegram.telegrambots.api.methods.send.SendMessage;
 import org.telegram.telegrambots.api.objects.Update;
+import org.telegram.telegrambots.api.objects.User;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import org.telegram.telegrambots.exceptions.TelegramApiException;
 
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 public class TodolistBot extends TelegramLongPollingBot {
+
+    private Map<Integer, UserStatement> userStatementMap;
+
+    public TodolistBot(){
+        super();
+        userStatementMap = new HashMap<Integer, UserStatement>();      //Временная реализация хранения состояния пользователя
+    }
 
     @Override
     public String getBotUsername() {
@@ -64,39 +79,60 @@ public class TodolistBot extends TelegramLongPollingBot {
         }
     }
 
-    private void showTaskLists(Integer user_id){ //user_id это ChatID, если я правильно понял, тогда не int, а long
+    private void showTaskLists(Integer user_id, Long chat_id){ //user_id это ChatID, если я правильно понял, тогда не int, а long
         //ToDo
     }
 
-    private void deleteTaskList(int list_id){
+    private void deleteTaskList(int list_id, Long chat_id){
         //ToDo
     }
 
-    private void changeTaskListName(int list_id, String newName){
+    private void changeTaskListName(int list_id, String newName, Long chat_id){
         //ToDo
     }
 
-    private void addNewTaskList(Integer user_id, String listName){
+    private void addNewTaskList(Integer user_id, String listName, Long chat_id){
         //ToDo
     }
 
-    private void showTasks(int list_id){
+    private void showTasks(int list_id, Long chat_id){
+        List<Task> tasks = null;
+        try {
+            tasks = DAOFactory.getTaskDao().getTasksByListID(list_id);
+        }catch (DAOException exc){
+            exc.printStackTrace();
+        }
+
+        String responseMsg = "";
+        if(!tasks.isEmpty()) {
+            for (Task task : tasks) {
+                responseMsg+=task.toString();
+            }
+        }
+
+        SendMessage response = new SendMessage()
+                    .setChatId(chat_id)
+                    .setText(responseMsg);
+        try {
+            execute(response);
+        } catch (TelegramApiException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void changeTaskStatus(int task_id, Long chat_id){
         //ToDo
     }
 
-    private void changeTaskStatus(int task_id){
+    private void deleteTask(int task_id, Long chat_id){
         //ToDo
     }
 
-    private void deleteTask(int task_id){
+    private void changeTaskText(int task_id, String newTaskText, Long chat_id){
         //ToDo
     }
 
-    private void changeTaskText(int task_id, String newTaskText){
-        //ToDo
-    }
-
-    private void addNewTask(int list_id, String taskDescription){
+    private void addNewTask(int list_id, String taskDescription, Long chat_id){
         //ToDo
     }
 
@@ -104,8 +140,44 @@ public class TodolistBot extends TelegramLongPollingBot {
         String message = update.getMessage().getText();
 
         if (message.toLowerCase().contains("/start") || message.toLowerCase().contains("/show")) { //В начале работы высвечиваются все списки (в функции надо сделать проверку)
-                showTaskLists(update.getMessage().getForwardFrom().getId());
+            showTaskLists(update.getMessage().getFrom().getId(), update.getMessage().getChatId());
         }
+        if (message.toLowerCase().contains("/addlist")) {
+            //addNewTaskList(update.getMessage().getFrom().getId(), );
+        }
+        if (message.toLowerCase().contains("/deletelist")) {
+            //deleteTaskList();
+        }
+    }
 
+    private void checkUserStatement(Update update){
+        User user = update.getMessage().getFrom();
+        UserStatement statement = getUserStatement(user.getId());
+
+        if(statement.getLastCommand().equalsIgnoreCase("/addlist")){
+            //ToDo
+        }
+        if(statement.getLastCommand().equalsIgnoreCase("/deletelist")){
+            //ToDo
+        }
+        if(statement.getLastCommand().equalsIgnoreCase("/renamelist")){
+            //ToDo
+        }
+        if(statement.getLastCommand().equalsIgnoreCase("/addtask")){
+            //ToDo
+        }
+        if(statement.getLastCommand().equalsIgnoreCase("/deletetask")){
+            //ToDo
+        }
+        if(statement.getLastCommand().equalsIgnoreCase("/changetask")){
+            //ToDo
+        }
+        if(statement.getLastCommand().equalsIgnoreCase("/changetaskstatus")){
+            //ToDo
+        }
+    }
+
+    private UserStatement getUserStatement(Integer user_id){
+        return userStatementMap.get(user_id);
     }
 }

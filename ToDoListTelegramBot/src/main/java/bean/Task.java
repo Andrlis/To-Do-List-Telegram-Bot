@@ -38,4 +38,12 @@ public class Task {
     public void setTaskStatus(boolean taskStatus) {
         this.taskStatus = taskStatus;
     }
+
+    @Override
+    public String toString() {
+        return taskDescription +
+                " - " +
+                (taskStatus?"\t\\xE2\\x9C\\x94":"\\xE2\\x9C\\x96") +
+                '\n';
+    }
 }

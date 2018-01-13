@@ -4,7 +4,7 @@ import dao.mySqlDAO.MySqlTaskDAO;
 import dao.mySqlDAO.MySqlTaskListDAO;
 import dao.mySqlDAO.MySqlUserDAO;
 
-public class DAOFaactory {
+public class DAOFactory {
     private enum DbType {MySQL}
 
     private static DbType type = DbType.MySQL;
