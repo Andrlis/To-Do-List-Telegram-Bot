@@ -1,6 +1,7 @@
 package bot;
 
 import bean.Task;
+import bean.TaskList;
 import dao.DAOException;
 import dao.DAOFactory;
 import org.telegram.telegrambots.api.methods.send.SendMessage;
@@ -80,19 +81,50 @@ public class TodolistBot extends TelegramLongPollingBot {
     }
 
     private void showTaskLists(Integer user_id, Long chat_id){ //user_id это ChatID, если я правильно понял, тогда не int, а long
-        //ToDo
+        List<TaskList> taskLists = null;
+        try {
+            taskLists = DAOFactory.getTaskListDao().getTaskListsByUserID(user_id);
+        }catch (DAOException exc){
+            exc.printStackTrace();
+        }
+
+        String responseMsg = "";
+        if(!taskLists.isEmpty()){
+            for (TaskList taskList : taskLists){
+                responseMsg += taskList.getListName() + "/n";
+            }
+        }
+
+        SendMessage response = new SendMessage()
+                .setChatId(chat_id)
+                .setText(responseMsg);
+
+        try {
+            execute(response);
+        } catch (TelegramApiException e){
+            e.printStackTrace();
+        }
     }
 
-    private void deleteTaskList(int list_id, Long chat_id){
-        //ToDo
+    private void deleteTaskList(int list_id, Long chat_id) throws DAOException {  //если я правильно понимаю то Index в листе и id в таблице одни и те же
+         DAOFactory.getTaskListDao().removeTaskList(list_id);
     }
 
-    private void changeTaskListName(int list_id, String newName, Long chat_id){
-        //ToDo
+    private void changeTaskListName(int list_id, String newName, Integer user_id/*Long chat_id*/) throws DAOException {
+        TaskList newList = DAOFactory.getTaskListDao().getTaskListByID(list_id);
+
+        newList.setListName(newName);
+        newList.setUserId(user_id);
+
+        DAOFactory.getTaskListDao().updateTaskList(list_id, newList);
     }
 
-    private void addNewTaskList(Integer user_id, String listName, Long chat_id){
-        //ToDo
+    private void addNewTaskList(Integer user_id, String listName, Long chat_id) throws DAOException {
+        TaskList newList = new TaskList();
+
+        newList.setUserId(user_id);
+        newList.setListName(listName);
+
     }
 
     private void showTasks(int list_id, Long chat_id){
@@ -120,20 +152,32 @@ public class TodolistBot extends TelegramLongPollingBot {
         }
     }
 
-    private void changeTaskStatus(int task_id, Long chat_id){
-        //ToDo
+    private void changeTaskStatus(int task_id, Long chat_id, boolean status) throws DAOException {
+        Task changedTask = DAOFactory.getTaskDao().getTaskByID(task_id);
+        changedTask.setTaskStatus(status);
+
+        DAOFactory.getTaskDao().updateTask(task_id, changedTask);
     }
 
-    private void deleteTask(int task_id, Long chat_id){
-        //ToDo
+    private void deleteTask(int task_id, Long chat_id) throws DAOException {
+        DAOFactory.getTaskDao().removeTask(task_id);
     }
 
-    private void changeTaskText(int task_id, String newTaskText, Long chat_id){
-        //ToDo
+    private void changeTaskText(int task_id, String newTaskText, Long chat_id) throws DAOException {
+        Task changedTask = DAOFactory.getTaskDao().getTaskByID(task_id);
+        changedTask.setTaskDescription(newTaskText);
+
+        DAOFactory.getTaskDao().updateTask(task_id, changedTask);
     }
 
-    private void addNewTask(int list_id, String taskDescription, Long chat_id){
-        //ToDo
+    private void addNewTask(int list_id, String taskDescription, Long chat_id) throws DAOException {
+        Task newTask = new Task();
+
+        newTask.setTaskDescription(taskDescription);
+        newTask.setTaskStatus(false);
+        newTask.setListId(list_id);
+
+        DAOFactory.getTaskDao().saveTask(newTask);
     }
 
     private void analizeMessage(Update update){
