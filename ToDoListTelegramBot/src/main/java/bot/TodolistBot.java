@@ -176,11 +176,13 @@ public class TodolistBot extends TelegramLongPollingBot {
         if (message.toLowerCase().contains("/renamelist")){
             UserStatement statement = getUserStatement(update.getMessage().getFrom().getId());
             statement.setLastCommand("/renamelist");
-            sendMessage("Enter new title.", update.getMessage().getChatId());
+            sendMessage("Select list which you want to rename.", update.getMessage().getChatId());
+            //sendMessage("Enter new title.", update.getMessage().getChatId());
         }
         if (message.toLowerCase().contains("/showtasks")){
             UserStatement statement = getUserStatement(update.getMessage().getFrom().getId());
-            showTasks(statement.getSelectedList(), update.getMessage().getChatId());
+            sendMessage("Select list which you want to see.", update.getMessage().getChatId());
+            //showTasks(statement.getSelectedList(), update.getMessage().getChatId());
         }
         if (message.toLowerCase().contains("/addtask")){
             UserStatement statement = getUserStatement(update.getMessage().getFrom().getId());
@@ -195,7 +197,7 @@ public class TodolistBot extends TelegramLongPollingBot {
         if (message.toLowerCase().contains("/changetask")){
             UserStatement statement = getUserStatement(update.getMessage().getFrom().getId());
             statement.setLastCommand("/changetask");
-            sendMessage("Enter new task`s description.", update.getMessage().getChatId());
+            sendMessage("Select task which you want to change.", update.getMessage().getChatId());
         }
         if (message.toLowerCase().contains("/changetaskstatus")){
             UserStatement statement = getUserStatement(update.getMessage().getFrom().getId());
@@ -209,25 +211,53 @@ public class TodolistBot extends TelegramLongPollingBot {
         UserStatement statement = getUserStatement(user.getId());
 
         if(statement.getLastCommand().equalsIgnoreCase("/addlist")){
-            //ToDo
+            addNewTaskList(user.getId(), update.getMessage().getText());
         }
         if(statement.getLastCommand().equalsIgnoreCase("/deletelist")){
-            //ToDo
+            deleteTaskList(Integer.parseInt(update.getMessage().getText()));
         }
         if(statement.getLastCommand().equalsIgnoreCase("/renamelist")){
-            //ToDo
+            if(statement.getSelectedList() != -1){
+                changeTaskListName(statement.getSelectedList(), update.getMessage().getText(), user.getId());
+                statement.setSelectedList(-1);
+                statement.setLastCommand("");
+            }
+            statement.setSelectedList(Integer.parseInt(update.getMessage().getText()));
+            sendMessage("Enter new title.", update.getMessage().getChatId());
         }
+
         if(statement.getLastCommand().equalsIgnoreCase("/addtask")){
-            //ToDo
+            addNewTask(statement.getSelectedList(), update.getMessage().getText());
         }
         if(statement.getLastCommand().equalsIgnoreCase("/deletetask")){
-            //ToDo
+            deleteTask(Integer.parseInt(update.getMessage().getText()));
         }
         if(statement.getLastCommand().equalsIgnoreCase("/changetask")){
-            //ToDo
+            if(statement.getSelectedTask() != -1){
+                changeTaskText(statement.getSelectedTask(), update.getMessage().getText());
+                statement.setSelectedTask(-1);
+                statement.setLastCommand("");
+            }
+            statement.setSelectedTask(Integer.parseInt(update.getMessage().getText()));
+            sendMessage("Enter new title.", update.getMessage().getChatId());
         }
         if(statement.getLastCommand().equalsIgnoreCase("/changetaskstatus")){
-            //ToDo
+            if(statement.getSelectedTask() != -1){
+                boolean status;
+                if (update.getMessage().getText() == "+") {
+                    status = true;
+                }
+                else status = false;
+                changeTaskStatus(statement.getSelectedTask(), status);
+                statement.setSelectedTask(-1);
+                statement.setLastCommand("");
+            }
+            statement.setSelectedTask(Integer.parseInt(update.getMessage().getText()));
+            sendMessage("Enter new status.", update.getMessage().getChatId());
+        }
+        if(statement.getLastCommand().equalsIgnoreCase("/showtasks")){
+            statement.setSelectedList(Integer.parseInt(update.getMessage().getText()));
+            showTasks(statement.getSelectedList(), update.getMessage().getChatId());
         }
     }
 
